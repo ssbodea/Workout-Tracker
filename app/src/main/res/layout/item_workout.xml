@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/surface_container"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/dateHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nov 26, 2024 • 14:30"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <ImageButton
+                android:id="@+id/lockButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/button_lock"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Lock workout"
+                android:layout_marginEnd="8dp"
+                app:tint="@color/text_primary" />
+
+            <ImageButton
+                android:id="@+id/removeWorkoutButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/button_minus"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Remove workout"
+                android:layout_marginEnd="8dp"
+                app:tint="@color/text_primary" />
+
+            <ImageButton
+                android:id="@+id/addWorkoutButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/button_plus"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Add workout"
+                app:tint="@color/text_primary" />
+
+        </LinearLayout>
+
+        <!-- Spinner Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <!-- Muscle Group Spinner -->
+            <Spinner
+                android:id="@+id/muscleGroupSpinner"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_marginEnd="16dp"
+                android:popupBackground="@color/surface_container" />
+
+            <!-- Exercise Spinner -->
+            <Spinner
+                android:id="@+id/exerciseSpinner"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="3"
+                android:background="@drawable/spinner_background"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:popupBackground="@color/surface_container" />
+
+        </LinearLayout>
+
+        <!-- Input Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <!-- Reps Input -->
+            <EditText
+                android:id="@+id/repsInput"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:background="@drawable/edit_text_background"
+                android:layout_marginEnd="16dp"
+                android:hint="reps"
+                android:textColorHint="@color/text_hint" /> <!-- FIXED: hintTextColor → textColorHint -->
+
+            <!-- Container for weight input + buttons -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Weight Input -->
+                <EditText
+                    android:id="@+id/weightInput"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:inputType="number"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:background="@drawable/edit_text_background"
+                    android:layout_marginEnd="8dp"
+                    android:hint="kg"
+                    android:textColorHint="@color/text_hint" /> <!-- FIXED: hintTextColor → textColorHint -->
+
+                <!-- Remove Set Button -->
+                <ImageButton
+                    android:id="@+id/removeSetButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/button_minus"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Remove set"
+                    android:layout_marginEnd="4dp"
+                    app:tint="@color/text_primary" />
+
+                <!-- Add Set Button -->
+                <ImageButton
+                    android:id="@+id/addSetButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/button_plus"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Add set"
+                    app:tint="@color/text_primary" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Sets Display -->
+        <TextView
+            android:id="@+id/setsDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No exercises recorded"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"
+            android:background="@drawable/edit_text_background"
+            android:padding="12dp"
+            android:gravity="center"
+            android:minHeight="48dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
