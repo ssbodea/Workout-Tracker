@@ -31,6 +31,14 @@ class WorkoutAdapter(
         val setsDisplay: TextView = itemView.findViewById(R.id.setsDisplay)
     }
 
+    var onWorkoutAdded: (() -> Unit)? = null
+    var onWorkoutRemoved: ((Int) -> Unit)? = null
+    var onDataChanged: (() -> Unit)? = null
+
+    private fun notifyDataChanged() {
+        onDataChanged?.invoke()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_workout, parent, false)
@@ -45,19 +53,10 @@ class WorkoutAdapter(
     override fun getItemCount(): Int = workouts.size
 
     private fun setupWorkoutItem(holder: WorkoutViewHolder, workout: Workout, position: Int) {
-        // Set date header
         holder.dateHeader.text = workout.getFormattedDateTime()
-
-        // Setup spinners
         setupSpinners(holder)
-
-        // Setup buttons
         setupButtons(holder, workout, position)
-
-        // Display exercises
         displayExercises(holder, workout)
-
-        // Update UI state based on lock status
         updateLockState(holder, workout, position)
     }
 
@@ -71,10 +70,7 @@ class WorkoutAdapter(
     }
 
     private fun updateLockState(holder: WorkoutViewHolder, workout: Workout, position: Int) {
-        // Update lock button icon
         updateLockButton(holder, workout)
-
-        // Enable/disable inputs based on lock state
         val enabled = !workout.isLocked
 
         holder.muscleGroupSpinner.isEnabled = enabled
@@ -84,15 +80,11 @@ class WorkoutAdapter(
         holder.addSetButton.isEnabled = enabled
         holder.removeSetButton.isEnabled = enabled && workout.exercises.isNotEmpty()
 
-        // Show/hide remove workout button based on lock state and position
-        // Can't remove first workout, and can't remove locked workouts
         val canRemove = position > 0 && !workout.isLocked
         holder.removeWorkoutButton.visibility = if (canRemove) View.VISIBLE else View.GONE
 
-        // Add workout button is always enabled (even when locked)
         holder.addWorkoutButton.isEnabled = true
 
-        // Visual feedback for disabled state
         val alpha = if (enabled) 1.0f else 0.5f
         holder.muscleGroupSpinner.alpha = alpha
         holder.exerciseSpinner.alpha = alpha
@@ -103,16 +95,14 @@ class WorkoutAdapter(
     }
 
     private fun setupSpinners(holder: WorkoutViewHolder) {
-        // Muscle Group Spinner with centered text
         val muscleGroupAdapter = ArrayAdapter(
             holder.itemView.context,
-            R.layout.spinner_item_centered,  // Use your custom centered layout
+            R.layout.spinner_item_centered,
             ExerciseDatabase.muscleGroups
         )
-        muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)  // Use your custom dropdown layout
+        muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.muscleGroupSpinner.adapter = muscleGroupAdapter
 
-        // Exercise Spinner - will be updated when muscle group changes
         updateExerciseSpinner(holder, ExerciseDatabase.muscleGroups.first())
 
         holder.muscleGroupSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -129,33 +119,32 @@ class WorkoutAdapter(
         val exercises = ExerciseDatabase.getExercisesForMuscleGroup(muscleGroup)
         val exerciseAdapter = ArrayAdapter(
             holder.itemView.context,
-            R.layout.spinner_item_centered,  // Use your custom centered layout
+            R.layout.spinner_item_centered,
             exercises
         )
-        exerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)  // Use your custom dropdown layout
+        exerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.exerciseSpinner.adapter = exerciseAdapter
     }
 
     private fun setupButtons(holder: WorkoutViewHolder, workout: Workout, position: Int) {
-        // Lock button
         holder.lockButton.setOnClickListener {
             workout.isLocked = !workout.isLocked
             updateLockState(holder, workout, position)
+            notifyDataChanged()
         }
 
-        // Remove workout button
         holder.removeWorkoutButton.setOnClickListener {
             if (!workout.isLocked && position > 0) {
                 onWorkoutRemoved?.invoke(position)
+                notifyDataChanged()
             }
         }
 
-        // Add workout button
         holder.addWorkoutButton.setOnClickListener {
             onWorkoutAdded?.invoke()
+            notifyDataChanged()
         }
 
-// Add set button
         holder.addSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
@@ -168,7 +157,6 @@ class WorkoutAdapter(
             val repetitions = repetitionsText.toIntOrNull() ?: return@setOnClickListener
             val weightText = holder.weightInput.text.toString()
 
-            // ADD THIS VALIDATION:
             val weight = if (weightText.isNotBlank()) {
                 val weightValue = weightText.toIntOrNull() ?: return@setOnClickListener
                 if (weightValue <= 0) {
@@ -180,7 +168,6 @@ class WorkoutAdapter(
                 null
             }
 
-            // Clear any previous errors
             holder.weightInput.error = null
 
             val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
@@ -188,7 +175,6 @@ class WorkoutAdapter(
 
             val exerciseSet = ExerciseSet(repetitions, weight)
 
-            // Find existing exercise or create new one
             val existingExercise = workout.exercises.find {
                 it.muscleGroup == muscleGroup && it.name == exerciseName
             }
@@ -200,30 +186,37 @@ class WorkoutAdapter(
                 workout.exercises.add(newExercise)
             }
 
-            // Clear inputs and hide keyboard
             holder.repsInput.text?.clear()
             holder.weightInput.text?.clear()
             holder.repsInput.error = null
             activity.hideKeyboardFromActivity()
 
-            // Update exercise display
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
+            notifyDataChanged()
         }
 
-        // Remove last set button
         holder.removeSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
-            if (workout.exercises.isNotEmpty()) {
-                val lastExercise = workout.exercises.last()
-                if (lastExercise.sets.size > 1) {
-                    lastExercise.sets.removeAt(lastExercise.sets.lastIndex)
+            val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
+            val exerciseName = holder.exerciseSpinner.selectedItem as String
+
+            val selectedExercise = workout.exercises.find {
+                it.muscleGroup == muscleGroup && it.name == exerciseName
+            }
+
+            if (selectedExercise != null) {
+                if (selectedExercise.sets.size > 1) {
+                    selectedExercise.sets.removeAt(selectedExercise.sets.lastIndex)
                 } else {
-                    workout.exercises.removeAt(workout.exercises.lastIndex)
+                    workout.exercises.remove(selectedExercise)
                 }
                 displayExercises(holder, workout)
                 updateLockState(holder, workout, position)
+                notifyDataChanged()
+            } else {
+                Toast.makeText(holder.itemView.context, "No sets to remove for selected exercise", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -238,8 +231,4 @@ class WorkoutAdapter(
             holder.setsDisplay.text = exercisesText
         }
     }
-
-    // Callback interfaces to communicate with MainActivity
-    var onWorkoutAdded: (() -> Unit)? = null
-    var onWorkoutRemoved: ((Int) -> Unit)? = null
 }
