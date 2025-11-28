@@ -103,13 +103,13 @@ class WorkoutAdapter(
     }
 
     private fun setupSpinners(holder: WorkoutViewHolder) {
-        // Muscle Group Spinner
+        // Muscle Group Spinner with centered text
         val muscleGroupAdapter = ArrayAdapter(
             holder.itemView.context,
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item_centered,  // Use your custom centered layout
             ExerciseDatabase.muscleGroups
         )
-        muscleGroupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)  // Use your custom dropdown layout
         holder.muscleGroupSpinner.adapter = muscleGroupAdapter
 
         // Exercise Spinner - will be updated when muscle group changes
@@ -129,10 +129,10 @@ class WorkoutAdapter(
         val exercises = ExerciseDatabase.getExercisesForMuscleGroup(muscleGroup)
         val exerciseAdapter = ArrayAdapter(
             holder.itemView.context,
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item_centered,  // Use your custom centered layout
             exercises
         )
-        exerciseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        exerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)  // Use your custom dropdown layout
         holder.exerciseSpinner.adapter = exerciseAdapter
     }
 
@@ -155,7 +155,7 @@ class WorkoutAdapter(
             onWorkoutAdded?.invoke()
         }
 
-        // Add set button
+// Add set button
         holder.addSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
@@ -166,7 +166,23 @@ class WorkoutAdapter(
             }
 
             val repetitions = repetitionsText.toIntOrNull() ?: return@setOnClickListener
-            val weight = holder.weightInput.text.toString().toIntOrNull()
+            val weightText = holder.weightInput.text.toString()
+
+            // ADD THIS VALIDATION:
+            val weight = if (weightText.isNotBlank()) {
+                val weightValue = weightText.toIntOrNull() ?: return@setOnClickListener
+                if (weightValue <= 0) {
+                    holder.weightInput.error = "Weight must be greater than 0"
+                    return@setOnClickListener
+                }
+                weightValue
+            } else {
+                null
+            }
+
+            // Clear any previous errors
+            holder.weightInput.error = null
+
             val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
             val exerciseName = holder.exerciseSpinner.selectedItem as String
 
