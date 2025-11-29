@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="6dp"
     app:cardBackgroundColor="@color/surface_container"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp">
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header -->
         <LinearLayout
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:id="@+id/dateHeader"
@@ -66,20 +66,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <!-- Muscle Group Spinner - same width as repsInput -->
             <Spinner
                 android:id="@+id/muscleGroupSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="36dp"
                 android:layout_weight="2"
                 android:background="@drawable/rounded_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:layout_marginEnd="8dp"
@@ -90,13 +90,13 @@
                 android:id="@+id/exerciseSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="36dp"
                 android:layout_weight="4"
                 android:background="@drawable/rounded_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:popupBackground="@color/surface_container" />
@@ -109,13 +109,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <!-- Reps Input - Wider (increased weight) -->
             <EditText
                 android:id="@+id/repsInput"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="2"
                 android:inputType="number"
                 android:textColor="@color/text_primary"
@@ -138,7 +138,7 @@
                 <EditText
                     android:id="@+id/weightInput"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:layout_weight="2"
                     android:inputType="number"
                     android:textColor="@color/text_primary"
@@ -153,7 +153,7 @@
                 <ImageButton
                     android:id="@+id/removeSetButton"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:src="@drawable/button_minus"
                     android:background="?attr/selectableItemBackgroundBorderless"
@@ -164,7 +164,7 @@
                 <ImageButton
                     android:id="@+id/addSetButton"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:src="@drawable/button_plus"
                     android:background="?attr/selectableItemBackgroundBorderless"
@@ -184,9 +184,9 @@
             android:textSize="14sp"
             android:lineSpacingExtra="4dp"
             android:background="@drawable/rounded_background"
-            android:padding="12dp"
+            android:padding="10dp"
             android:gravity="center"
-            android:minHeight="48dp" />
+            android:minHeight="42dp" />
 
     </LinearLayout>
 
