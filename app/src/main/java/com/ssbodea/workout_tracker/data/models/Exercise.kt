@@ -5,38 +5,23 @@ data class Exercise(
     val name: String,
     private val _sets: MutableList<ExerciseSet> = mutableListOf()
 ) {
-    val sets: List<ExerciseSet>
-        get() = _sets.toList()
+    val sets: List<ExerciseSet> get() = _sets.toList()
 
-    fun addSet(exerciseSet: ExerciseSet) {
-        _sets.add(exerciseSet)
+    fun addSet(exerciseSet: ExerciseSet) = _sets.add(exerciseSet)
+
+    fun removeLastSet(): Boolean = _sets.isNotEmpty().also {
+        if (it) _sets.removeAt(_sets.size - 1)
     }
 
-    fun removeLastSet(): Boolean {
-        return if (_sets.isNotEmpty()) {
-            _sets.removeAt(_sets.size - 1)
-            true
-        } else {
-            false
-        }
-    }
+    fun clearSets() = _sets.clear()
 
-    fun clearSets() {
-        _sets.clear()
-    }
-
-    // Add equals and hashCode for proper list operations
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Exercise
-
-        if (muscleGroup != other.muscleGroup) return false
-        if (name != other.name) return false
-        if (_sets != other._sets) return false
-
-        return true
+        return muscleGroup == other.muscleGroup &&
+                name == other.name &&
+                _sets == other._sets
     }
 
     override fun hashCode(): Int {

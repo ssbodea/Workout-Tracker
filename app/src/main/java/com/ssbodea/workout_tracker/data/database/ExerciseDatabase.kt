@@ -11,6 +11,6 @@ object ExerciseDatabase {
     )
 
     fun getExercisesForMuscleGroup(muscleGroup: String): List<String> {
-        return exercisesMap[muscleGroup] ?: emptyList()
+        return exercisesMap[muscleGroup].orEmpty()
     }
 }

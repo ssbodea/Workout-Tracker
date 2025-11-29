@@ -5,6 +5,6 @@ data class ExerciseSet(
     val weight: Int? = null
 ) {
     override fun toString(): String {
-        return if (weight != null) "${repetitions}x${weight}kg" else repetitions.toString()
+        return weight?.let { "${repetitions}x${it}kg" } ?: repetitions.toString()
     }
 }

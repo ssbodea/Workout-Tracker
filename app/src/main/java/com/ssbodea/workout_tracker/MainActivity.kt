@@ -9,7 +9,6 @@ import com.ssbodea.workout_tracker.data.models.Workout
 import com.ssbodea.workout_tracker.ui.adapters.WorkoutAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,7 +28,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         initializeViews()
         loadWorkoutsFromStorage()
         setupWorkoutList()
@@ -37,9 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (shouldAutoScroll) {
-            scrollToLatestWorkout()
-        }
+        if (shouldAutoScroll) scrollToLatestWorkout()
     }
 
     override fun onPause() {
@@ -52,17 +48,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupWorkoutList() {
-        if (workouts.isEmpty()) {
-            addInitialWorkout()
-        }
+        if (workouts.isEmpty()) addInitialWorkout()
 
         workoutAdapter = WorkoutAdapter(workouts, this)
         setupAdapterCallbacks()
         setupRecyclerView()
 
-        if (shouldAutoScroll) {
-            scrollToLatestWorkout()
-        }
+        if (shouldAutoScroll) scrollToLatestWorkout()
     }
 
     private fun addInitialWorkout() {
@@ -70,17 +62,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupAdapterCallbacks() {
-        workoutAdapter.onWorkoutAdded = {
-            addNewWorkout()
-        }
-
-        workoutAdapter.onWorkoutRemoved = { position ->
-            removeWorkout(position)
-        }
-
-        workoutAdapter.onDataChanged = {
-            saveWorkoutsToStorage()
-        }
+        workoutAdapter.onWorkoutAdded = { addNewWorkout() }
+        workoutAdapter.onWorkoutRemoved = { position -> removeWorkout(position) }
+        workoutAdapter.onDataChanged = { saveWorkoutsToStorage() }
     }
 
     private fun setupRecyclerView() {
@@ -90,16 +74,11 @@ class MainActivity : AppCompatActivity() {
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    if (dy < 0) {
-                        shouldAutoScroll = false
-                    } else if (!canScrollVertically(1)) {
-                        shouldAutoScroll = true
-                    }
+                    if (dy < 0) shouldAutoScroll = false
+                    else if (!canScrollVertically(1)) shouldAutoScroll = true
                 }
 
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    super.onScrollStateChanged(recyclerView, newState)
                     if (newState == RecyclerView.SCROLL_STATE_IDLE && !recyclerView.canScrollVertically(1)) {
                         shouldAutoScroll = true
                     }
@@ -109,13 +88,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addNewWorkout() {
-        val oldLastPosition = workouts.size - 1 // Store position before adding
-        val newWorkout = Workout(id = generateNextWorkoutId())
-        workouts.add(newWorkout)
-
-        // Use the efficient method to update only necessary items
+        val oldLastPosition = workouts.lastIndex
+        workouts.add(Workout(id = generateNextWorkoutId()))
         workoutAdapter.notifyWorkoutAdded(oldLastPosition)
-
         saveWorkoutsToStorage()
         scrollToLatestWorkout()
         shouldAutoScroll = true
@@ -129,27 +104,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scrollToLatestWorkout() {
-        if (workouts.isNotEmpty()) {
-            recyclerViewWorkouts.smoothScrollToPosition(workouts.size - 1)
-        }
+        if (workouts.isNotEmpty()) recyclerViewWorkouts.smoothScrollToPosition(workouts.lastIndex)
     }
 
     fun removeWorkout(position: Int) {
         if (canRemoveWorkout(position)) {
-            // Check if we're removing an item that affects the last workout display
             val wasLastOrSecondLast = position >= workouts.size - 2
-
-            // Remove from the list
             workouts.removeAt(position)
-
-            // Use the efficient method to update UI
             workoutAdapter.notifyWorkoutStructureChanged(position, wasLastOrSecondLast)
-
             saveWorkoutsToStorage()
-
-            if (workouts.isNotEmpty()) {
-                scrollToLatestWorkout()
-            }
+            if (workouts.isNotEmpty()) scrollToLatestWorkout()
         }
     }
 
@@ -159,37 +123,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun saveWorkoutsToStorage() {
         val sharedPref = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
-        val jsonString = workoutsToJson(workouts)
+        val jsonString = gson.toJson(workouts)
         sharedPref.edit().putString(WORKOUTS_KEY, jsonString).apply()
     }
 
     private fun loadWorkoutsFromStorage() {
         val sharedPref = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
-        val jsonString = sharedPref.getString(WORKOUTS_KEY, null)
-        if (jsonString != null) {
-            val loadedWorkouts = jsonToWorkouts(jsonString)
+        sharedPref.getString(WORKOUTS_KEY, null)?.let { jsonString ->
+            val type = object : TypeToken<List<Workout>>() {}.type
+            val loadedWorkouts = gson.fromJson<List<Workout>>(jsonString, type).orEmpty()
             workouts.clear()
             workouts.addAll(loadedWorkouts)
         }
     }
 
-    private fun workoutsToJson(workouts: List<Workout>): String {
-        return gson.toJson(workouts)
-    }
-
-    private fun jsonToWorkouts(jsonString: String): List<Workout> {
-        return try {
-            val type = object : TypeToken<List<Workout>>() {}.type
-            gson.fromJson<List<Workout>>(jsonString, type) ?: emptyList()
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-
     fun hideKeyboardFromActivity() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        currentFocus?.windowToken?.let { windowToken ->
-            imm.hideSoftInputFromWindow(windowToken, 0)
+        (getSystemService(INPUT_METHOD_SERVICE) as? InputMethodManager)?.let { imm ->
+            currentFocus?.windowToken?.let { windowToken ->
+                imm.hideSoftInputFromWindow(windowToken, 0)
+            }
         }
     }
 }
