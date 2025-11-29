@@ -132,16 +132,18 @@ class MainActivity : AppCompatActivity() {
     fun removeWorkout(position: Int) {
         if (canRemoveWorkout(position)) {
             workouts.removeAt(position)
-            workoutAdapter.notifyItemRemoved(position)
+            // Update the adapter with the new list and notify about the change
+            workoutAdapter.updateWorkouts(workouts.toMutableList())
             saveWorkoutsToStorage()
-            if (position == workouts.size) {
+
+            if (position <= workouts.size) { // Check if we still have workouts
                 scrollToLatestWorkout()
             }
         }
     }
 
     private fun canRemoveWorkout(position: Int): Boolean {
-        return workouts.size > 1 && position > 0
+        return workouts.size > 1 && position > 0 && position < workouts.size
     }
 
     private fun saveWorkoutsToStorage() {

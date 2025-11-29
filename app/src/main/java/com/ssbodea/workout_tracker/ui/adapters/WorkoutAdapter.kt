@@ -63,6 +63,23 @@ class WorkoutAdapter(
         setupButtons(holder, workout, position)
         displayExercises(holder, workout)
         updateLockState(holder, workout, position)
+        updateAddButtonState(holder, position)
+    }
+
+    private fun updateAddButtonState(holder: WorkoutViewHolder, position: Int) {
+        val isLastWorkout = position == workouts.size - 1
+        val currentWorkoutHasExercises = workouts[position].exercises.isNotEmpty()
+
+        // Only show and enable add button for the last workout
+        if (isLastWorkout) {
+            holder.addWorkoutButton.visibility = View.VISIBLE
+            // Enable add button only if current workout has exercises
+            holder.addWorkoutButton.isEnabled = currentWorkoutHasExercises
+            holder.addWorkoutButton.alpha = if (currentWorkoutHasExercises) ALPHA_ENABLED else ALPHA_DISABLED
+        } else {
+            // Hide add button for all non-last workouts
+            holder.addWorkoutButton.visibility = View.GONE
+        }
     }
 
     private fun updateLockButton(holder: WorkoutViewHolder, workout: Workout) {
@@ -90,7 +107,6 @@ class WorkoutAdapter(
 
         val canRemove = position > 0 && !workout.isLocked
         holder.removeWorkoutButton.visibility = if (canRemove) View.VISIBLE else View.GONE
-        holder.addWorkoutButton.isEnabled = true
     }
 
     private fun setupSpinners(holder: WorkoutViewHolder) {
@@ -120,7 +136,7 @@ class WorkoutAdapter(
     private fun setupButtons(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         setupLockButton(holder, workout, position)
         setupRemoveWorkoutButton(holder, workout, position)
-        setupAddWorkoutButton(holder)
+        setupAddWorkoutButton(holder, position)
         setupAddSetButton(holder, workout, position)
         setupRemoveSetButton(holder, workout, position)
     }
@@ -129,6 +145,8 @@ class WorkoutAdapter(
         holder.lockButton.setOnClickListener {
             workout.isLocked = !workout.isLocked
             updateLockState(holder, workout, position)
+            // Refresh add button state when workout is locked/unlocked
+            updateAddButtonState(holder, position)
             notifyDataChanged()
         }
     }
@@ -136,16 +154,28 @@ class WorkoutAdapter(
     private fun setupRemoveWorkoutButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeWorkoutButton.setOnClickListener {
             if (!workout.isLocked && position > 0) {
+                // Simply call the callback - let the main activity handle the removal
                 onWorkoutRemoved?.invoke(position)
-                notifyDataChanged()
+                // Don't modify the list here - let the main activity handle it
             }
         }
     }
 
-    private fun setupAddWorkoutButton(holder: WorkoutViewHolder) {
+    private fun setupAddWorkoutButton(holder: WorkoutViewHolder, position: Int) {
         holder.addWorkoutButton.setOnClickListener {
-            onWorkoutAdded?.invoke()
-            notifyDataChanged()
+            val isLastWorkout = position == workouts.size - 1
+            val currentWorkoutHasExercises = workouts[position].exercises.isNotEmpty()
+
+            // Only allow adding if this is the last workout AND it has exercises
+            if (isLastWorkout && currentWorkoutHasExercises) {
+                onWorkoutAdded?.invoke()
+                notifyDataChanged()
+            } else {
+                // Show feedback to user
+                if (!currentWorkoutHasExercises) {
+                    Toast.makeText(activity, "Add exercises to current workout before creating a new one", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -168,6 +198,8 @@ class WorkoutAdapter(
             activity.hideKeyboardFromActivity()
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
+            // Update add button state when exercises are added
+            updateAddButtonState(holder, position)
             notifyDataChanged()
         }
     }
@@ -182,6 +214,8 @@ class WorkoutAdapter(
             removeExerciseSet(workout, muscleGroup, exerciseName)
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
+            // Update add button state when exercises are removed
+            updateAddButtonState(holder, position)
             notifyDataChanged()
         }
     }
@@ -261,5 +295,12 @@ class WorkoutAdapter(
             }
             holder.setsDisplay.text = exercisesText
         }
+    }
+
+    // Public method to update workouts list safely
+    fun updateWorkouts(newWorkouts: List<Workout>) {
+        workouts.clear()
+        workouts.addAll(newWorkouts)
+        notifyDataSetChanged()
     }
 }
