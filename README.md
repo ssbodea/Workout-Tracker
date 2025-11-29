@@ -2,8 +2,21 @@
 
 A clean and intuitive Android workout tracking app built with Kotlin that helps you log and monitor your fitness progress using the proven Legs-Core-Push-Pull training system.
 
-![Screenshot](workout1.jpg)
-![Screenshot](workout2.jpg)
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="screenshots/workout1.jpg" alt="Main Workout Screen" width="200"/><br/>
+        <em>Main Workout Interface</em>
+      </td>
+      <td align="center">
+        <img src="screenshots/workout2.jpg" alt="Exercise Selection" width="200"/><br/>
+        <em>Exercise Selection</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ## ✨ Features
 
 ### 🏋️‍♂️ Workout Management
