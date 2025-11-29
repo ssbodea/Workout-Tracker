@@ -68,7 +68,7 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
 
-            <!-- Muscle Group Spinner - CENTERED -->
+            <!-- Muscle Group Spinner - same width as repsInput -->
             <Spinner
                 android:id="@+id/muscleGroupSpinner"
                 android:layout_width="0dp"
@@ -82,10 +82,10 @@
                 android:paddingBottom="8dp"
                 android:textSize="14sp"
                 android:gravity="center"
-            android:layout_marginEnd="16dp"
-            android:popupBackground="@color/surface_container" />
+                android:layout_marginEnd="8dp"
+                android:popupBackground="@color/surface_container" />
 
-            <!-- Exercise Spinner - CENTERED -->
+            <!-- Exercise Spinner - same width as weightInput + space + addSet + space + removeSet -->
             <Spinner
                 android:id="@+id/exerciseSpinner"
                 android:layout_width="0dp"
@@ -122,7 +122,7 @@
                 android:textSize="16sp"
                 android:gravity="center"
                 android:background="@drawable/rounded_background"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="8dp"
                 android:hint="reps"
                 android:textColorHint="@color/text_hint" />
 
@@ -134,7 +134,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Weight Input -->
+                <!-- Weight Input - same width as repsInput -->
                 <EditText
                     android:id="@+id/weightInput"
                     android:layout_width="0dp"
@@ -158,7 +158,7 @@
                     android:src="@drawable/button_minus"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Remove set"
-                    android:layout_marginEnd="4dp" />
+                    android:layout_marginEnd="8dp" />
 
                 <!-- Add Set Button -->
                 <ImageButton
