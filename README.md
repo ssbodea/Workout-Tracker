@@ -6,11 +6,11 @@ A clean and intuitive Android workout tracking app built with Kotlin that helps 
   <table>
     <tr>
       <td align="center">
-        <img src="workout1.jpg" alt="Workout1" width="300"/><br/>
+        <img src="workout1.jpg" alt="Workout1" style = "width=200; height: auto"/><br/>
         <em>Workout 1</em>
       </td>
       <td align="center">
-        <img src="workout2.jpg" alt="Workout2" width="300"/><br/>
+        <img src="workout2.jpg" alt="Workout2" style = "width=200; height: auto"/><br/>
         <em>Workout 2</em>
       </td>
     </tr>
