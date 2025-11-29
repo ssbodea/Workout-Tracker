@@ -51,6 +51,10 @@ class WorkoutAdapter(
     }
 
     override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
+        // Safety check for position bounds
+        if (position < 0 || position >= workouts.size) {
+            return
+        }
         val workout = workouts[position]
         setupWorkoutItem(holder, workout, position)
     }
@@ -67,17 +71,17 @@ class WorkoutAdapter(
     }
 
     private fun updateAddButtonState(holder: WorkoutViewHolder, position: Int) {
+        // Safety check
+        if (position < 0 || position >= workouts.size) return
+
         val isLastWorkout = position == workouts.size - 1
         val currentWorkoutHasExercises = workouts[position].exercises.isNotEmpty()
 
-        // Only show and enable add button for the last workout
         if (isLastWorkout) {
             holder.addWorkoutButton.visibility = View.VISIBLE
-            // Enable add button only if current workout has exercises
             holder.addWorkoutButton.isEnabled = currentWorkoutHasExercises
             holder.addWorkoutButton.alpha = if (currentWorkoutHasExercises) ALPHA_ENABLED else ALPHA_DISABLED
         } else {
-            // Hide add button for all non-last workouts
             holder.addWorkoutButton.visibility = View.GONE
         }
     }
@@ -114,11 +118,14 @@ class WorkoutAdapter(
         muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.muscleGroupSpinner.adapter = muscleGroupAdapter
 
-        updateExerciseSpinner(holder, ExerciseDatabase.muscleGroups.first())
+        // Set initial selection safely
+        if (ExerciseDatabase.muscleGroups.isNotEmpty()) {
+            updateExerciseSpinner(holder, ExerciseDatabase.muscleGroups.first())
+        }
 
         holder.muscleGroupSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedMuscleGroup = parent?.getItemAtPosition(position) as String
+                val selectedMuscleGroup = parent?.getItemAtPosition(position) as? String ?: return
                 updateExerciseSpinner(holder, selectedMuscleGroup)
             }
 
@@ -145,7 +152,6 @@ class WorkoutAdapter(
         holder.lockButton.setOnClickListener {
             workout.isLocked = !workout.isLocked
             updateLockState(holder, workout, position)
-            // Refresh add button state when workout is locked/unlocked
             updateAddButtonState(holder, position)
             notifyDataChanged()
         }
@@ -154,27 +160,27 @@ class WorkoutAdapter(
     private fun setupRemoveWorkoutButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeWorkoutButton.setOnClickListener {
             if (!workout.isLocked && position > 0) {
-                // Simply call the callback - let the main activity handle the removal
                 onWorkoutRemoved?.invoke(position)
-                // Don't modify the list here - let the main activity handle it
             }
         }
     }
 
     private fun setupAddWorkoutButton(holder: WorkoutViewHolder, position: Int) {
         holder.addWorkoutButton.setOnClickListener {
+            // Safety check
+            if (position < 0 || position >= workouts.size) return@setOnClickListener
+
             val isLastWorkout = position == workouts.size - 1
             val currentWorkoutHasExercises = workouts[position].exercises.isNotEmpty()
 
-            // Only allow adding if this is the last workout AND it has exercises
             if (isLastWorkout && currentWorkoutHasExercises) {
                 onWorkoutAdded?.invoke()
                 notifyDataChanged()
             } else {
-                // Show feedback to user
                 if (!currentWorkoutHasExercises) {
                     Toast.makeText(activity, "Add exercises to current workout before creating a new one", Toast.LENGTH_SHORT).show()
                 }
+                // Just return from the click listener, no need for explicit return
             }
         }
     }
@@ -189,8 +195,8 @@ class WorkoutAdapter(
             val validatedInput = validateInputs(repetitionsText, weightText, holder) ?: return@setOnClickListener
             val (repetitions, weight) = validatedInput
 
-            val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
-            val exerciseName = holder.exerciseSpinner.selectedItem as String
+            val muscleGroup = holder.muscleGroupSpinner.selectedItem as? String ?: return@setOnClickListener
+            val exerciseName = holder.exerciseSpinner.selectedItem as? String ?: return@setOnClickListener
 
             addExerciseSet(workout, muscleGroup, exerciseName, repetitions, weight)
 
@@ -198,7 +204,6 @@ class WorkoutAdapter(
             activity.hideKeyboardFromActivity()
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
-            // Update add button state when exercises are added
             updateAddButtonState(holder, position)
             notifyDataChanged()
         }
@@ -208,13 +213,12 @@ class WorkoutAdapter(
         holder.removeSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
-            val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
-            val exerciseName = holder.exerciseSpinner.selectedItem as String
+            val muscleGroup = holder.muscleGroupSpinner.selectedItem as? String ?: return@setOnClickListener
+            val exerciseName = holder.exerciseSpinner.selectedItem as? String ?: return@setOnClickListener
 
             removeExerciseSet(workout, muscleGroup, exerciseName)
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
-            // Update add button state when exercises are removed
             updateAddButtonState(holder, position)
             notifyDataChanged()
         }
@@ -295,12 +299,5 @@ class WorkoutAdapter(
             }
             holder.setsDisplay.text = exercisesText
         }
-    }
-
-    // Public method to update workouts list safely
-    fun updateWorkouts(newWorkouts: List<Workout>) {
-        workouts.clear()
-        workouts.addAll(newWorkouts)
-        notifyDataSetChanged()
     }
 }

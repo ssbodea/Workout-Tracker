@@ -9,6 +9,7 @@ import com.ssbodea.workout_tracker.data.models.Workout
 import com.ssbodea.workout_tracker.ui.adapters.WorkoutAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -131,12 +132,20 @@ class MainActivity : AppCompatActivity() {
 
     fun removeWorkout(position: Int) {
         if (canRemoveWorkout(position)) {
+            // Remove from the list
             workouts.removeAt(position)
-            // Update the adapter with the new list and notify about the change
-            workoutAdapter.updateWorkouts(workouts.toMutableList())
+
+            // Notify adapter about the removal and update remaining items
+            workoutAdapter.notifyItemRemoved(position)
+
+            // Update all items after the removed position since their positions changed
+            if (position < workouts.size) {
+                workoutAdapter.notifyItemRangeChanged(position, workouts.size - position)
+            }
+
             saveWorkoutsToStorage()
 
-            if (position <= workouts.size) { // Check if we still have workouts
+            if (workouts.isNotEmpty()) {
                 scrollToLatestWorkout()
             }
         }
