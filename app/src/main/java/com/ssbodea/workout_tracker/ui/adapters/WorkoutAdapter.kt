@@ -17,6 +17,12 @@ class WorkoutAdapter(
     private val activity: MainActivity
 ) : RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder>() {
 
+    companion object {
+        private const val ALPHA_ENABLED = 1.0f
+        private const val ALPHA_DISABLED = 0.5f
+        private const val NO_EXERCISES_TEXT = "No exercises recorded"
+    }
+
     inner class WorkoutViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateHeader: TextView = itemView.findViewById(R.id.dateHeader)
         val lockButton: ImageButton = itemView.findViewById(R.id.lockButton)
@@ -40,8 +46,7 @@ class WorkoutAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_workout, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_workout, parent, false)
         return WorkoutViewHolder(view)
     }
 
@@ -61,11 +66,7 @@ class WorkoutAdapter(
     }
 
     private fun updateLockButton(holder: WorkoutViewHolder, workout: Workout) {
-        val lockIcon = if (workout.isLocked) {
-            R.drawable.button_lock
-        } else {
-            R.drawable.button_lock_open
-        }
+        val lockIcon = if (workout.isLocked) R.drawable.button_lock else R.drawable.button_lock_open
         holder.lockButton.setImageResource(lockIcon)
     }
 
@@ -73,33 +74,27 @@ class WorkoutAdapter(
         updateLockButton(holder, workout)
         val enabled = !workout.isLocked
 
-        holder.muscleGroupSpinner.isEnabled = enabled
-        holder.exerciseSpinner.isEnabled = enabled
-        holder.repsInput.isEnabled = enabled
-        holder.weightInput.isEnabled = enabled
-        holder.addSetButton.isEnabled = enabled
-        holder.removeSetButton.isEnabled = enabled && workout.exercises.isNotEmpty()
+        val uiElements = listOf(
+            holder.muscleGroupSpinner,
+            holder.exerciseSpinner,
+            holder.repsInput,
+            holder.weightInput,
+            holder.addSetButton,
+            holder.removeSetButton
+        )
+
+        uiElements.forEach { element ->
+            element.isEnabled = enabled
+            element.alpha = if (enabled) ALPHA_ENABLED else ALPHA_DISABLED
+        }
 
         val canRemove = position > 0 && !workout.isLocked
         holder.removeWorkoutButton.visibility = if (canRemove) View.VISIBLE else View.GONE
-
         holder.addWorkoutButton.isEnabled = true
-
-        val alpha = if (enabled) 1.0f else 0.5f
-        holder.muscleGroupSpinner.alpha = alpha
-        holder.exerciseSpinner.alpha = alpha
-        holder.repsInput.alpha = alpha
-        holder.weightInput.alpha = alpha
-        holder.addSetButton.alpha = alpha
-        holder.removeSetButton.alpha = alpha
     }
 
     private fun setupSpinners(holder: WorkoutViewHolder) {
-        val muscleGroupAdapter = ArrayAdapter(
-            holder.itemView.context,
-            R.layout.spinner_item_centered,
-            ExerciseDatabase.muscleGroups
-        )
+        val muscleGroupAdapter = ArrayAdapter(holder.itemView.context, R.layout.spinner_item_centered, ExerciseDatabase.muscleGroups)
         muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.muscleGroupSpinner.adapter = muscleGroupAdapter
 
@@ -117,113 +112,149 @@ class WorkoutAdapter(
 
     private fun updateExerciseSpinner(holder: WorkoutViewHolder, muscleGroup: String) {
         val exercises = ExerciseDatabase.getExercisesForMuscleGroup(muscleGroup)
-        val exerciseAdapter = ArrayAdapter(
-            holder.itemView.context,
-            R.layout.spinner_item_centered,
-            exercises
-        )
+        val exerciseAdapter = ArrayAdapter(holder.itemView.context, R.layout.spinner_item_centered, exercises)
         exerciseAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.exerciseSpinner.adapter = exerciseAdapter
     }
 
     private fun setupButtons(holder: WorkoutViewHolder, workout: Workout, position: Int) {
+        setupLockButton(holder, workout, position)
+        setupRemoveWorkoutButton(holder, workout, position)
+        setupAddWorkoutButton(holder)
+        setupAddSetButton(holder, workout, position)
+        setupRemoveSetButton(holder, workout, position)
+    }
+
+    private fun setupLockButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.lockButton.setOnClickListener {
             workout.isLocked = !workout.isLocked
             updateLockState(holder, workout, position)
             notifyDataChanged()
         }
+    }
 
+    private fun setupRemoveWorkoutButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeWorkoutButton.setOnClickListener {
             if (!workout.isLocked && position > 0) {
                 onWorkoutRemoved?.invoke(position)
                 notifyDataChanged()
             }
         }
+    }
 
+    private fun setupAddWorkoutButton(holder: WorkoutViewHolder) {
         holder.addWorkoutButton.setOnClickListener {
             onWorkoutAdded?.invoke()
             notifyDataChanged()
         }
+    }
 
+    private fun setupAddSetButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.addSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
             val repetitionsText = holder.repsInput.text.toString()
-            if (repetitionsText.isBlank()) {
-                holder.repsInput.error = "Reps required"
-                return@setOnClickListener
-            }
-
-            val repetitions = repetitionsText.toIntOrNull() ?: return@setOnClickListener
             val weightText = holder.weightInput.text.toString()
 
-            val weight = if (weightText.isNotBlank()) {
-                val weightValue = weightText.toIntOrNull() ?: return@setOnClickListener
-                if (weightValue <= 0) {
-                    holder.weightInput.error = "Weight must be greater than 0"
-                    return@setOnClickListener
-                }
-                weightValue
-            } else {
-                null
-            }
-
-            holder.weightInput.error = null
+            val validatedInput = validateInputs(repetitionsText, weightText, holder) ?: return@setOnClickListener
+            val (repetitions, weight) = validatedInput
 
             val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
             val exerciseName = holder.exerciseSpinner.selectedItem as String
 
-            val exerciseSet = ExerciseSet(repetitions, weight)
+            addExerciseSet(workout, muscleGroup, exerciseName, repetitions, weight)
 
-            val existingExercise = workout.exercises.find {
-                it.muscleGroup == muscleGroup && it.name == exerciseName
-            }
-
-            if (existingExercise != null) {
-                existingExercise.sets.add(exerciseSet)
-            } else {
-                val newExercise = Exercise(muscleGroup, exerciseName, mutableListOf(exerciseSet))
-                workout.exercises.add(newExercise)
-            }
-
-            holder.repsInput.text?.clear()
-            holder.weightInput.text?.clear()
-            holder.repsInput.error = null
+            clearInputs(holder)
             activity.hideKeyboardFromActivity()
-
             displayExercises(holder, workout)
             updateLockState(holder, workout, position)
             notifyDataChanged()
         }
+    }
 
+    private fun setupRemoveSetButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
             val muscleGroup = holder.muscleGroupSpinner.selectedItem as String
             val exerciseName = holder.exerciseSpinner.selectedItem as String
 
-            val selectedExercise = workout.exercises.find {
-                it.muscleGroup == muscleGroup && it.name == exerciseName
-            }
-
-            if (selectedExercise != null) {
-                if (selectedExercise.sets.size > 1) {
-                    selectedExercise.sets.removeAt(selectedExercise.sets.lastIndex)
-                } else {
-                    workout.exercises.remove(selectedExercise)
-                }
-                displayExercises(holder, workout)
-                updateLockState(holder, workout, position)
-                notifyDataChanged()
-            } else {
-                Toast.makeText(holder.itemView.context, "No sets to remove for selected exercise", Toast.LENGTH_SHORT).show()
-            }
+            removeExerciseSet(workout, muscleGroup, exerciseName)
+            displayExercises(holder, workout)
+            updateLockState(holder, workout, position)
+            notifyDataChanged()
         }
+    }
+
+    private fun validateInputs(repsText: String, weightText: String, holder: WorkoutViewHolder): Pair<Int, Int?>? {
+        if (repsText.isBlank()) {
+            holder.repsInput.error = "Reps required"
+            return null
+        }
+
+        val repetitions = repsText.toIntOrNull() ?: run {
+            holder.repsInput.error = "Invalid reps"
+            return null
+        }
+
+        if (repetitions <= 0) {
+            holder.repsInput.error = "Reps must be greater than 0"
+            return null
+        }
+
+        val weight = if (weightText.isNotBlank()) {
+            val weightValue = weightText.toIntOrNull() ?: run {
+                holder.weightInput.error = "Invalid weight"
+                return null
+            }
+            if (weightValue <= 0) {
+                holder.weightInput.error = "Weight must be greater than 0"
+                return null
+            }
+            weightValue
+        } else {
+            null
+        }
+
+        holder.weightInput.error = null
+        return Pair(repetitions, weight)
+    }
+
+    private fun addExerciseSet(workout: Workout, muscleGroup: String, exerciseName: String, repetitions: Int, weight: Int?) {
+        val exerciseSet = ExerciseSet(repetitions, weight)
+        val existingExercise = workout.exercises.find { it.muscleGroup == muscleGroup && it.name == exerciseName }
+
+        if (existingExercise != null) {
+            existingExercise.addSet(exerciseSet)
+        } else {
+            val newExercise = Exercise(muscleGroup, exerciseName).apply { addSet(exerciseSet) }
+            workout.exercises.add(newExercise)
+        }
+    }
+
+    private fun removeExerciseSet(workout: Workout, muscleGroup: String, exerciseName: String) {
+        val selectedExercise = workout.exercises.find { it.muscleGroup == muscleGroup && it.name == exerciseName }
+
+        if (selectedExercise != null) {
+            val success = selectedExercise.removeLastSet()
+            if (!success || selectedExercise.sets.isEmpty()) {
+                workout.exercises.remove(selectedExercise)
+            }
+        } else {
+            Toast.makeText(activity, "No sets to remove for selected exercise", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun clearInputs(holder: WorkoutViewHolder) {
+        holder.repsInput.text?.clear()
+        holder.weightInput.text?.clear()
+        holder.repsInput.error = null
+        holder.weightInput.error = null
     }
 
     private fun displayExercises(holder: WorkoutViewHolder, workout: Workout) {
         if (workout.exercises.isEmpty()) {
-            holder.setsDisplay.text = "No exercises recorded"
+            holder.setsDisplay.text = NO_EXERCISES_TEXT
         } else {
             val exercisesText = workout.exercises.joinToString("\n") { exercise ->
                 "${exercise.name}: ${exercise.sets.joinToString(", ") { it.toString() }}"

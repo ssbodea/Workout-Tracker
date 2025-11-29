@@ -10,7 +10,7 @@ data class Workout(
     var isLocked: Boolean = false
 ) {
     fun getFormattedDateTime(): String {
-        val formatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+        val formatter = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.US)
         return formatter.format(dateTime)
     }
 }
