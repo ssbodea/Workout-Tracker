@@ -109,9 +109,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addNewWorkout() {
+        val oldLastPosition = workouts.size - 1 // Store position before adding
         val newWorkout = Workout(id = generateNextWorkoutId())
         workouts.add(newWorkout)
-        workoutAdapter.notifyItemInserted(workouts.size - 1)
+
+        // Use the efficient method to update only necessary items
+        workoutAdapter.notifyWorkoutAdded(oldLastPosition)
+
         saveWorkoutsToStorage()
         scrollToLatestWorkout()
         shouldAutoScroll = true
@@ -132,16 +136,14 @@ class MainActivity : AppCompatActivity() {
 
     fun removeWorkout(position: Int) {
         if (canRemoveWorkout(position)) {
+            // Check if we're removing an item that affects the last workout display
+            val wasLastOrSecondLast = position >= workouts.size - 2
+
             // Remove from the list
             workouts.removeAt(position)
 
-            // Notify adapter about the removal and update remaining items
-            workoutAdapter.notifyItemRemoved(position)
-
-            // Update all items after the removed position since their positions changed
-            if (position < workouts.size) {
-                workoutAdapter.notifyItemRangeChanged(position, workouts.size - position)
-            }
+            // Use the efficient method to update UI
+            workoutAdapter.notifyWorkoutStructureChanged(position, wasLastOrSecondLast)
 
             saveWorkoutsToStorage()
 

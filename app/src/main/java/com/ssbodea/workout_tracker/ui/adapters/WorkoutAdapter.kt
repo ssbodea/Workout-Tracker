@@ -180,7 +180,6 @@ class WorkoutAdapter(
                 if (!currentWorkoutHasExercises) {
                     Toast.makeText(activity, "Add exercises to current workout before creating a new one", Toast.LENGTH_SHORT).show()
                 }
-                // Just return from the click listener, no need for explicit return
             }
         }
     }
@@ -298,6 +297,33 @@ class WorkoutAdapter(
                 "${exercise.name}: ${exercise.sets.joinToString(", ") { it.toString() }}"
             }
             holder.setsDisplay.text = exercisesText
+        }
+    }
+
+    // Efficient method to update only the necessary items when adding a new workout
+    fun notifyWorkoutAdded(oldLastPosition: Int) {
+        // Notify that the old last item changed (to hide its + button)
+        if (oldLastPosition >= 0) {
+            notifyItemChanged(oldLastPosition)
+        }
+        // Notify that a new item was inserted
+        notifyItemInserted(workouts.size - 1)
+    }
+
+    // Add this method to WorkoutAdapter class
+    fun notifyWorkoutStructureChanged(removedPosition: Int, wasLastOrSecondLast: Boolean) {
+        // Notify about the removal
+        notifyItemRemoved(removedPosition)
+
+        if (wasLastOrSecondLast) {
+            // If we removed the last or second last item, we need to update the new last item
+            val newLastPosition = workouts.size - 1
+            if (newLastPosition >= 0) {
+                notifyItemChanged(newLastPosition)
+            }
+        } else if (removedPosition < workouts.size) {
+            // For normal removals, update all items after the removed position
+            notifyItemRangeChanged(removedPosition, workouts.size - removedPosition)
         }
     }
 }
