@@ -40,8 +40,7 @@
                 android:src="@drawable/button_lock"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Lock workout"
-                android:layout_marginEnd="8dp"
-                app:tint="@color/text_primary" />
+                android:layout_marginEnd="8dp" />
 
             <ImageButton
                 android:id="@+id/removeWorkoutButton"
@@ -50,8 +49,7 @@
                 android:src="@drawable/button_minus"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Remove workout"
-                android:layout_marginEnd="8dp"
-                app:tint="@color/text_primary" />
+                android:layout_marginEnd="8dp" />
 
             <ImageButton
                 android:id="@+id/addWorkoutButton"
@@ -59,8 +57,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/button_plus"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Add workout"
-                app:tint="@color/text_primary" />
+                android:contentDescription="Add workout" />
 
         </LinearLayout>
 
@@ -71,29 +68,35 @@
             android:orientation="horizontal"
             android:layout_marginBottom="16dp">
 
-            <!-- Muscle Group Spinner -->
+            <!-- Muscle Group Spinner - CENTERED -->
             <Spinner
                 android:id="@+id/muscleGroupSpinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
                 android:layout_weight="1"
-                android:background="@drawable/spinner_background"
+                android:background="@drawable/rounded_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:textSize="14sp"
                 android:gravity="center"
-                android:layout_marginEnd="16dp"
-                android:popupBackground="@color/surface_container" />
+            android:layout_marginEnd="16dp"
+            android:popupBackground="@color/surface_container" />
 
-            <!-- Exercise Spinner -->
+            <!-- Exercise Spinner - CENTERED -->
             <Spinner
                 android:id="@+id/exerciseSpinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
                 android:layout_weight="3"
-                android:background="@drawable/spinner_background"
+                android:background="@drawable/rounded_background"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:textSize="14sp"
                 android:gravity="center"
                 android:popupBackground="@color/surface_container" />
@@ -118,10 +121,10 @@
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:gravity="center"
-                android:background="@drawable/edit_text_background"
+                android:background="@drawable/rounded_background"
                 android:layout_marginEnd="16dp"
                 android:hint="reps"
-                android:textColorHint="@color/text_hint" /> <!-- FIXED: hintTextColor → textColorHint -->
+                android:textColorHint="@color/text_hint" />
 
             <!-- Container for weight input + buttons -->
             <LinearLayout
@@ -141,10 +144,10 @@
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:gravity="center"
-                    android:background="@drawable/edit_text_background"
+                    android:background="@drawable/rounded_background"
                     android:layout_marginEnd="8dp"
                     android:hint="kg"
-                    android:textColorHint="@color/text_hint" /> <!-- FIXED: hintTextColor → textColorHint -->
+                    android:textColorHint="@color/text_hint" />
 
                 <!-- Remove Set Button -->
                 <ImageButton
@@ -155,8 +158,7 @@
                     android:src="@drawable/button_minus"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Remove set"
-                    android:layout_marginEnd="4dp"
-                    app:tint="@color/text_primary" />
+                    android:layout_marginEnd="4dp" />
 
                 <!-- Add Set Button -->
                 <ImageButton
@@ -166,8 +168,7 @@
                     android:layout_weight="1"
                     android:src="@drawable/button_plus"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Add set"
-                    app:tint="@color/text_primary" />
+                    android:contentDescription="Add set" />
 
             </LinearLayout>
 
@@ -182,7 +183,7 @@
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:lineSpacingExtra="4dp"
-            android:background="@drawable/edit_text_background"
+            android:background="@drawable/rounded_background"
             android:padding="12dp"
             android:gravity="center"
             android:minHeight="48dp" />

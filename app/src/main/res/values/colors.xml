@@ -8,20 +8,22 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Dark Theme Colors -->
-    <color name="surface">#121212</color>
-    <color name="surface_container">#1E1E1E</color>
-    <color name="on_surface">#FFFFFF</color>
-    <color name="surface_variant">#2D2D2D</color>
+    <!-- Enhanced Dark Theme Colors -->
+    <color name="surface">#0F0F0F</color>
+    <color name="surface_container">#1A1A1A</color>
+    <color name="surface_variant">#2A2A2A</color>
     <color name="primary">#BB86FC</color>
-    <color name="primary_variant">#3700B3</color>
+    <color name="primary_variant">#9A67EA</color>
 
     <!-- Text Colors -->
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B3B3B3</color>
+    <color name="text_primary">#F5F5F5</color>
+    <color name="text_secondary">#B0B0B0</color>
     <color name="text_hint">#666666</color>
 
     <!-- Border Colors -->
-    <color name="border_light">#333333</color>
+    <color name="border_light">#404040</color>
     <color name="border_medium">#555555</color>
+
+    <!-- For Material 3 compatibility -->
+    <color name="on_surface">#F5F5F5</color>
 </resources>

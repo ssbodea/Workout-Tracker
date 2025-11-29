@@ -2,8 +2,11 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
+    android:minHeight="40dp"
     android:gravity="center"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:textColor="@color/text_primary"
-    android:textSize="14sp"
-    android:background="@color/surface_container" />
+    android:textSize="14sp" />
