@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -26,7 +25,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nov 26, 2024 • 14:30"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -38,7 +36,6 @@
                 android:layout_height="32dp"
                 android:src="@drawable/button_lock"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Lock workout"
                 android:layout_marginEnd="8dp" />
 
             <ImageButton
@@ -47,7 +44,6 @@
                 android:layout_height="32dp"
                 android:src="@drawable/button_minus"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Remove workout"
                 android:layout_marginEnd="8dp" />
 
             <ImageButton
@@ -55,8 +51,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:src="@drawable/button_plus"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Add workout" />
+                android:background="?attr/selectableItemBackgroundBorderless" />
 
         </LinearLayout>
 
@@ -148,7 +143,6 @@
                     android:layout_weight="1"
                     android:src="@drawable/button_minus"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Remove set"
                     android:layout_marginEnd="8dp" />
 
                 <ImageButton
@@ -157,8 +151,7 @@
                     android:layout_height="44dp"
                     android:layout_weight="1"
                     android:src="@drawable/button_plus"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Add set" />
+                    android:background="?attr/selectableItemBackgroundBorderless" />
 
             </LinearLayout>
 
@@ -168,7 +161,6 @@
             android:id="@+id/setsDisplay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No exercises recorded"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:lineSpacingExtra="4dp"
