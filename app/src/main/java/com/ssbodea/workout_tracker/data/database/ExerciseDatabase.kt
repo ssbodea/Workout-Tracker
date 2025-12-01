@@ -19,13 +19,13 @@ object ExerciseDatabase {
             "Side Plank",
             "Sit Ups",
             "Reverse Crunches",
-            "Ab Wheel Rollout",
             "Hanging Leg Raise",
             "L-sit",
             "Toes to Bar",
             "V-sit",
             "Windshield Wiper",
-            "Dragon Flag"
+            "Dragon Flag",
+            "Ab Wheel Rollout"
         ),
         "Push" to listOf(
             "Bench Press",
