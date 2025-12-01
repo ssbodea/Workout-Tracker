@@ -7,25 +7,27 @@ object ExerciseDatabase {
         "Legs" to listOf(
             "Squat",
             "Leg Press",
-            "Pistol Squat",
-            "Dragon Squat",
             "Side Split",
-            "Front Split"
+            "Front Split",
+            "Pistol Squat",
+            "Dragon Squat"
         ),
         "Core" to listOf(
             "Plank",
             "Hollow Hold",
             "Arch Hold",
             "Side Plank",
-            "Sit Ups",
-            "Reverse Crunches",
+            "Reverse Plank",
+            "Sit-ups",
+            "Reverse Crunch",
+            "Ab Wheel Rollout",
             "Hanging Leg Raise",
             "L-sit",
-            "Toes to Bar",
             "V-sit",
-            "Windshield Wiper",
+            "Toes to Bar",
+            "Windshield Wipers",
             "Dragon Flag",
-            "Ab Wheel Rollout"
+            "Dragon Press"
         ),
         "Push" to listOf(
             "Bench Press",
@@ -36,7 +38,8 @@ object ExerciseDatabase {
             "Handstand Push-up",
             "One Arm Push-up",
             "Planche Push-up",
-            "One Arm Handstand Hold"
+            "One Arm Handstand Hold",
+            "One Arm Planche"
         ),
         "Pull" to listOf(
             "Deadlift",
