@@ -1,3 +1,5 @@
+package com.ssbodea.workout_tracker.data.database
+
 object ExerciseDatabase {
     val muscleGroups = listOf("Legs", "Core", "Push", "Pull")
 
