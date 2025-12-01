@@ -38,13 +38,10 @@ class WorkoutAdapter(
         val addSetButton: ImageButton = itemView.findViewById(R.id.addSetButton)
         val setsDisplay: TextView = itemView.findViewById(R.id.setsDisplay)
     }
+
     inner class EmptySpaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
-            // Get screen height and set as empty space height
-            val displayMetrics = itemView.context.resources.displayMetrics
-            val screenHeight = displayMetrics.heightPixels
-
-            // Add extra padding (100px) to ensure enough space
+            val screenHeight = itemView.context.resources.displayMetrics.heightPixels
             itemView.layoutParams.height = screenHeight + 100
         }
     }
@@ -53,9 +50,7 @@ class WorkoutAdapter(
     var onWorkoutRemoved: ((Int) -> Unit)? = null
     var onDataChanged: (() -> Unit)? = null
 
-    override fun getItemViewType(position: Int): Int {
-        return if (position < workouts.size) VIEW_TYPE_WORKOUT else VIEW_TYPE_EMPTY_SPACE
-    }
+    override fun getItemViewType(position: Int) = if (position < workouts.size) VIEW_TYPE_WORKOUT else VIEW_TYPE_EMPTY_SPACE
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == VIEW_TYPE_WORKOUT) {
@@ -69,63 +64,53 @@ class WorkoutAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is WorkoutViewHolder && position < workouts.size) {
-            val workout = workouts[position]
-            setupWorkoutItem(holder, workout, position)
+            setupWorkoutItem(holder, workouts[position], position)
         }
-        // EmptySpaceViewHolder doesn't need any setup
     }
 
-    override fun getItemCount(): Int = workouts.size + 1 // +1 for empty space
+    override fun getItemCount() = workouts.size + 1
 
     private fun setupWorkoutItem(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.dateHeader.text = workout.getFormattedDateTime()
         setupSpinners(holder)
-        setupEditTextFocusListeners(holder, position)
+        setupInputListeners(holder, position)
         setupButtons(holder, workout, position)
         displayExercises(holder, workout)
         updateLockState(holder, workout, position)
         updateAddButtonState(holder, position)
     }
 
-    private fun setupEditTextFocusListeners(holder: WorkoutViewHolder, position: Int) {
-        val scrollToTop = {
-            activity.scrollItemToTop(position)
-        }
+    private fun setupInputListeners(holder: WorkoutViewHolder, position: Int) {
+        val scrollToTop = { activity.scrollItemToTop(position) }
 
-        holder.repsInput.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) scrollToTop()
-        }
-
-        holder.weightInput.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) scrollToTop()
-        }
+        val focusListener = View.OnFocusChangeListener { _, hasFocus -> if (hasFocus) scrollToTop() }
+        holder.repsInput.setOnFocusChangeListener(focusListener)
+        holder.weightInput.setOnFocusChangeListener(focusListener)
 
         holder.repsInput.setOnClickListener { scrollToTop() }
         holder.weightInput.setOnClickListener { scrollToTop() }
     }
 
     private fun updateAddButtonState(holder: WorkoutViewHolder, position: Int) {
-        if (position !in workouts.indices) return
-
-        val isLastWorkout = position == workouts.lastIndex
+        val isLast = position == workouts.lastIndex
         val hasExercises = workouts[position].exercises.isNotEmpty()
 
-        holder.addWorkoutButton.visibility = if (isLastWorkout) View.VISIBLE else View.GONE
+        holder.addWorkoutButton.visibility = if (isLast) View.VISIBLE else View.GONE
         holder.addWorkoutButton.isEnabled = hasExercises
         holder.addWorkoutButton.alpha = if (hasExercises) ALPHA_ENABLED else ALPHA_DISABLED
     }
 
     private fun updateLockState(holder: WorkoutViewHolder, workout: Workout, position: Int) {
-        val lockIcon = if (workout.isLocked) R.drawable.button_lock else R.drawable.button_lock_open
-        holder.lockButton.setImageResource(lockIcon)
+        holder.lockButton.setImageResource(if (workout.isLocked) R.drawable.button_lock else R.drawable.button_lock_open)
 
         val enabled = !workout.isLocked
-        listOf(
+        val elements = listOf(
             holder.muscleGroupSpinner, holder.exerciseSpinner, holder.repsInput,
             holder.weightInput, holder.addSetButton, holder.removeSetButton
-        ).forEach { element ->
-            element.isEnabled = enabled
-            element.alpha = if (enabled) ALPHA_ENABLED else ALPHA_DISABLED
+        )
+        elements.forEach {
+            it.isEnabled = enabled
+            it.alpha = if (enabled) ALPHA_ENABLED else ALPHA_DISABLED
         }
 
         val canRemove = position > 0 && !workout.isLocked
@@ -137,15 +122,11 @@ class WorkoutAdapter(
         muscleGroupAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_centered)
         holder.muscleGroupSpinner.adapter = muscleGroupAdapter
 
-        ExerciseDatabase.muscleGroups.firstOrNull()?.let {
-            updateExerciseSpinner(holder, it)
-        }
+        ExerciseDatabase.muscleGroups.firstOrNull()?.let { updateExerciseSpinner(holder, it) }
 
         holder.muscleGroupSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                (parent?.getItemAtPosition(position) as? String)?.let {
-                    updateExerciseSpinner(holder, it)
-                }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
+                (parent?.getItemAtPosition(pos) as? String)?.let { updateExerciseSpinner(holder, it) }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
@@ -159,64 +140,46 @@ class WorkoutAdapter(
     }
 
     private fun setupButtons(holder: WorkoutViewHolder, workout: Workout, position: Int) {
-        setupLockButton(holder, workout, position)
-        setupRemoveWorkoutButton(holder, workout, position)
-        setupAddWorkoutButton(holder, position)
-        setupAddSetButton(holder, workout, position)
-        setupRemoveSetButton(holder, workout, position)
-    }
-
-    private fun setupLockButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.lockButton.setOnClickListener {
             workout.isLocked = !workout.isLocked
             updateLockState(holder, workout, position)
             updateAddButtonState(holder, position)
             onDataChanged?.invoke()
         }
-    }
 
-    private fun setupRemoveWorkoutButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeWorkoutButton.setOnClickListener {
-            if (!workout.isLocked && position > 0) {
-                onWorkoutRemoved?.invoke(position)
-            }
+            if (!workout.isLocked && position > 0) onWorkoutRemoved?.invoke(position)
         }
-    }
 
-    private fun setupAddWorkoutButton(holder: WorkoutViewHolder, position: Int) {
         holder.addWorkoutButton.setOnClickListener {
             if (position !in workouts.indices) return@setOnClickListener
 
-            val isLastWorkout = position == workouts.lastIndex
+            val isLast = position == workouts.lastIndex
             val hasExercises = workouts[position].exercises.isNotEmpty()
 
             when {
-                isLastWorkout && hasExercises -> onWorkoutAdded?.invoke()
+                isLast && hasExercises -> onWorkoutAdded?.invoke()
                 !hasExercises -> Toast.makeText(activity, "Add exercises to current workout before creating a new one", Toast.LENGTH_SHORT).show()
             }
             onDataChanged?.invoke()
         }
-    }
 
-    private fun setupAddSetButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.addSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
             val muscleGroup = holder.muscleGroupSpinner.selectedItem as? String ?: return@setOnClickListener
             val exerciseName = holder.exerciseSpinner.selectedItem as? String ?: return@setOnClickListener
 
-            validateInputs(holder)?.let { (repetitions, weight) ->
-                addExerciseSet(workout, muscleGroup, exerciseName, repetitions, weight)
-                clearInputs(holder)
+            validateInputs(holder)?.let { (reps, weight) ->
+                addExerciseSet(workout, muscleGroup, exerciseName, reps, weight)
+                clearInputsAndFocus(holder)
                 activity.hideKeyboardFromActivity()
                 displayExercises(holder, workout)
                 updateAddButtonState(holder, position)
                 onDataChanged?.invoke()
             }
         }
-    }
 
-    private fun setupRemoveSetButton(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.removeSetButton.setOnClickListener {
             if (workout.isLocked) return@setOnClickListener
 
@@ -224,6 +187,7 @@ class WorkoutAdapter(
             val exerciseName = holder.exerciseSpinner.selectedItem as? String ?: return@setOnClickListener
 
             removeExerciseSet(workout, muscleGroup, exerciseName)
+            clearInputsAndFocus(holder)
             displayExercises(holder, workout)
             updateAddButtonState(holder, position)
             onDataChanged?.invoke()
@@ -244,10 +208,8 @@ class WorkoutAdapter(
             return null
         }
 
-        val weight = weightText.takeIf { it.isNotBlank() }?.toIntOrNull()?.takeIf { it > 0 } ?: run {
-            if (weightText.isNotBlank()) holder.weightInput.error = "Invalid weight"
-            null
-        }
+        val weight = weightText.takeIf { it.isNotBlank() }?.toIntOrNull()?.takeIf { it > 0 }
+        if (weightText.isNotBlank() && weight == null) holder.weightInput.error = "Invalid weight"
 
         holder.repsInput.error = null
         holder.weightInput.error = null
@@ -278,11 +240,13 @@ class WorkoutAdapter(
         }
     }
 
-    private fun clearInputs(holder: WorkoutViewHolder) {
+    private fun clearInputsAndFocus(holder: WorkoutViewHolder) {
         holder.repsInput.text?.clear()
         holder.weightInput.text?.clear()
         holder.repsInput.error = null
         holder.weightInput.error = null
+        holder.repsInput.clearFocus()
+        holder.weightInput.clearFocus()
     }
 
     private fun displayExercises(holder: WorkoutViewHolder, workout: Workout) {
@@ -298,12 +262,12 @@ class WorkoutAdapter(
     fun notifyWorkoutAdded(oldLastPosition: Int) {
         if (oldLastPosition >= 0) notifyItemChanged(oldLastPosition)
         notifyItemInserted(workouts.lastIndex)
-        notifyItemChanged(workouts.size) // Update empty space position
+        notifyItemChanged(workouts.size)
     }
 
     fun notifyWorkoutStructureChanged(removedPosition: Int, wasLastOrSecondLast: Boolean) {
         notifyItemRemoved(removedPosition)
-        notifyItemChanged(workouts.size) // Update empty space position
+        notifyItemChanged(workouts.size)
         when {
             wasLastOrSecondLast -> workouts.lastIndex.takeIf { it >= 0 }?.let { notifyItemChanged(it) }
             removedPosition < workouts.size -> notifyItemRangeChanged(removedPosition, workouts.size - removedPosition)

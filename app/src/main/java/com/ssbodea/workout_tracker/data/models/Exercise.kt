@@ -15,14 +15,11 @@ data class Exercise(
 
     fun clearSets() = _sets.clear()
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as Exercise
-        return muscleGroup == other.muscleGroup &&
-                name == other.name &&
-                _sets == other._sets
-    }
+    override fun equals(other: Any?) = this === other ||
+            (javaClass == other?.javaClass && other is Exercise &&
+                    muscleGroup == other.muscleGroup &&
+                    name == other.name &&
+                    _sets == other._sets)
 
     override fun hashCode(): Int {
         var result = muscleGroup.hashCode()

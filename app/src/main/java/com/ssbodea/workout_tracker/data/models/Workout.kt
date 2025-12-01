@@ -9,19 +9,14 @@ data class Workout(
     val exercises: MutableList<Exercise> = mutableListOf(),
     var isLocked: Boolean = false
 ) {
-    fun getFormattedDateTime(): String {
-        return SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.US).format(dateTime)
-    }
+    fun getFormattedDateTime() = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.US).format(dateTime)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as Workout
-        return id == other.id &&
-                dateTime == other.dateTime &&
-                exercises == other.exercises &&
-                isLocked == other.isLocked
-    }
+    override fun equals(other: Any?) = this === other ||
+            (javaClass == other?.javaClass && other is Workout &&
+                    id == other.id &&
+                    dateTime == other.dateTime &&
+                    exercises == other.exercises &&
+                    isLocked == other.isLocked)
 
     override fun hashCode(): Int {
         var result = id

@@ -10,7 +10,5 @@ object ExerciseDatabase {
         "Pull" to listOf("Pull-up", "Chin-up", "Muscle-up", "Back Lever", "Front Lever", "Human Flag", "One Arm Pull-up")
     )
 
-    fun getExercisesForMuscleGroup(muscleGroup: String): List<String> {
-        return exercisesMap[muscleGroup].orEmpty()
-    }
+    fun getExercisesForMuscleGroup(muscleGroup: String) = exercisesMap[muscleGroup].orEmpty()
 }
