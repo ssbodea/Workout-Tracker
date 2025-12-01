@@ -15,12 +15,14 @@ import com.ssbodea.workout_tracker.R
 class WorkoutAdapter(
     private val workouts: MutableList<Workout>,
     private val activity: MainActivity
-) : RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val ALPHA_ENABLED = 1.0f
         private const val ALPHA_DISABLED = 0.5f
         private const val NO_EXERCISES_TEXT = "No exercises recorded"
+        private const val VIEW_TYPE_WORKOUT = 0
+        private const val VIEW_TYPE_EMPTY_SPACE = 1
     }
 
     inner class WorkoutViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,31 +38,70 @@ class WorkoutAdapter(
         val addSetButton: ImageButton = itemView.findViewById(R.id.addSetButton)
         val setsDisplay: TextView = itemView.findViewById(R.id.setsDisplay)
     }
+    inner class EmptySpaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        init {
+            // Get screen height and set as empty space height
+            val displayMetrics = itemView.context.resources.displayMetrics
+            val screenHeight = displayMetrics.heightPixels
+
+            // Add extra padding (100px) to ensure enough space
+            itemView.layoutParams.height = screenHeight + 100
+        }
+    }
 
     var onWorkoutAdded: (() -> Unit)? = null
     var onWorkoutRemoved: ((Int) -> Unit)? = null
     var onDataChanged: (() -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_workout, parent, false)
-        return WorkoutViewHolder(view)
+    override fun getItemViewType(position: Int): Int {
+        return if (position < workouts.size) VIEW_TYPE_WORKOUT else VIEW_TYPE_EMPTY_SPACE
     }
 
-    override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
-        if (position !in workouts.indices) return
-        val workout = workouts[position]
-        setupWorkoutItem(holder, workout, position)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_WORKOUT) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_workout, parent, false)
+            WorkoutViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_empty_space, parent, false)
+            EmptySpaceViewHolder(view)
+        }
     }
 
-    override fun getItemCount(): Int = workouts.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is WorkoutViewHolder && position < workouts.size) {
+            val workout = workouts[position]
+            setupWorkoutItem(holder, workout, position)
+        }
+        // EmptySpaceViewHolder doesn't need any setup
+    }
+
+    override fun getItemCount(): Int = workouts.size + 1 // +1 for empty space
 
     private fun setupWorkoutItem(holder: WorkoutViewHolder, workout: Workout, position: Int) {
         holder.dateHeader.text = workout.getFormattedDateTime()
         setupSpinners(holder)
+        setupEditTextFocusListeners(holder, position)
         setupButtons(holder, workout, position)
         displayExercises(holder, workout)
         updateLockState(holder, workout, position)
         updateAddButtonState(holder, position)
+    }
+
+    private fun setupEditTextFocusListeners(holder: WorkoutViewHolder, position: Int) {
+        val scrollToTop = {
+            activity.scrollItemToTop(position)
+        }
+
+        holder.repsInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) scrollToTop()
+        }
+
+        holder.weightInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) scrollToTop()
+        }
+
+        holder.repsInput.setOnClickListener { scrollToTop() }
+        holder.weightInput.setOnClickListener { scrollToTop() }
     }
 
     private fun updateAddButtonState(holder: WorkoutViewHolder, position: Int) {
@@ -257,10 +298,12 @@ class WorkoutAdapter(
     fun notifyWorkoutAdded(oldLastPosition: Int) {
         if (oldLastPosition >= 0) notifyItemChanged(oldLastPosition)
         notifyItemInserted(workouts.lastIndex)
+        notifyItemChanged(workouts.size) // Update empty space position
     }
 
     fun notifyWorkoutStructureChanged(removedPosition: Int, wasLastOrSecondLast: Boolean) {
         notifyItemRemoved(removedPosition)
+        notifyItemChanged(workouts.size) // Update empty space position
         when {
             wasLastOrSecondLast -> workouts.lastIndex.takeIf { it >= 0 }?.let { notifyItemChanged(it) }
             removedPosition < workouts.size -> notifyItemRangeChanged(removedPosition, workouts.size - removedPosition)

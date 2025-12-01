@@ -14,7 +14,6 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -61,14 +60,12 @@
 
         </LinearLayout>
 
-        <!-- Spinner Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="12dp">
 
-            <!-- Muscle Group Spinner - same width as repsInput -->
             <Spinner
                 android:id="@+id/muscleGroupSpinner"
                 android:layout_width="0dp"
@@ -85,7 +82,6 @@
                 android:layout_marginEnd="8dp"
                 android:popupBackground="@color/surface_container" />
 
-            <!-- Exercise Spinner - same width as weightInput + space + addSet + space + removeSet -->
             <Spinner
                 android:id="@+id/exerciseSpinner"
                 android:layout_width="0dp"
@@ -103,7 +99,6 @@
 
         </LinearLayout>
 
-        <!-- Input Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -111,7 +106,6 @@
             android:gravity="center_vertical"
             android:layout_marginBottom="12dp">
 
-            <!-- Reps Input - Wider (increased weight) -->
             <EditText
                 android:id="@+id/repsInput"
                 android:layout_width="0dp"
@@ -126,7 +120,6 @@
                 android:hint="reps"
                 android:textColorHint="@color/text_hint" />
 
-            <!-- Container for weight input + buttons -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -134,7 +127,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Weight Input - same width as repsInput -->
                 <EditText
                     android:id="@+id/weightInput"
                     android:layout_width="0dp"
@@ -149,7 +141,6 @@
                     android:hint="kg"
                     android:textColorHint="@color/text_hint" />
 
-                <!-- Remove Set Button -->
                 <ImageButton
                     android:id="@+id/removeSetButton"
                     android:layout_width="0dp"
@@ -160,7 +151,6 @@
                     android:contentDescription="Remove set"
                     android:layout_marginEnd="8dp" />
 
-                <!-- Add Set Button -->
                 <ImageButton
                     android:id="@+id/addSetButton"
                     android:layout_width="0dp"
@@ -174,7 +164,6 @@
 
         </LinearLayout>
 
-        <!-- Sets Display -->
         <TextView
             android:id="@+id/setsDisplay"
             android:layout_width="match_parent"

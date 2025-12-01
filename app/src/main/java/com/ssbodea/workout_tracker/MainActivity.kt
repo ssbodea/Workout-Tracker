@@ -2,6 +2,7 @@ package com.ssbodea.workout_tracker
 
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +10,7 @@ import com.ssbodea.workout_tracker.data.models.Workout
 import com.ssbodea.workout_tracker.ui.adapters.WorkoutAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +30,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+
         initializeViews()
         loadWorkoutsFromStorage()
         setupWorkoutList()
@@ -35,7 +40,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (shouldAutoScroll) scrollToLatestWorkout()
+        if (shouldAutoScroll && workouts.isNotEmpty()) {
+            scrollToLatestWorkout()
+        }
     }
 
     override fun onPause() {
@@ -54,7 +61,9 @@ class MainActivity : AppCompatActivity() {
         setupAdapterCallbacks()
         setupRecyclerView()
 
-        if (shouldAutoScroll) scrollToLatestWorkout()
+        if (shouldAutoScroll && workouts.isNotEmpty()) {
+            scrollToLatestWorkout()
+        }
     }
 
     private fun addInitialWorkout() {
@@ -104,7 +113,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scrollToLatestWorkout() {
-        if (workouts.isNotEmpty()) recyclerViewWorkouts.smoothScrollToPosition(workouts.lastIndex)
+        if (workouts.isNotEmpty()) {
+            recyclerViewWorkouts.post {
+                recyclerViewWorkouts.smoothScrollToPosition(workouts.lastIndex)
+            }
+        }
+    }
+
+    fun scrollItemToTop(position: Int) {
+        if (position < 0 || position >= workouts.size) return
+
+        recyclerViewWorkouts.post {
+            val layoutManager = recyclerViewWorkouts.layoutManager as LinearLayoutManager
+
+            // Get visible range
+            val firstVisible = layoutManager.findFirstVisibleItemPosition()
+            val lastVisible = layoutManager.findLastVisibleItemPosition()
+
+            // Check if target item is currently visible
+            if (position in firstVisible..lastVisible) {
+                val view = layoutManager.findViewByPosition(position)
+                view?.let {
+                    val currentTop = it.top
+                    val desiredTop = recyclerViewWorkouts.paddingTop
+
+                    // If already at desired position (±10px), don't scroll
+                    if (abs(currentTop - desiredTop) <= 10) {
+                        return@post
+                    }
+                }
+            }
+
+            // Item not at correct position, scroll it
+            layoutManager.scrollToPositionWithOffset(position, recyclerViewWorkouts.paddingTop)
+        }
     }
 
     fun removeWorkout(position: Int) {
