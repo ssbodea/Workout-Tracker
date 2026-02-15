@@ -44,9 +44,3 @@ To edit, build, or extend the app, you must have the following installed:
 - A physical Android device or an **Android Emulator** for testing
 
 ---
-
-## Getting Started (Development)
-
-Clone the repository:
-   ```bash
-   git clone https://github.com/ssbodea/Workout-Tracker.git
