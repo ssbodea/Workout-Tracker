@@ -1,13 +1,13 @@
 # Workout-Tracker 🏋️‍♂️
 
-Workout-Tracker is an Android app built with **Kotlin** for tracking Legs, Core, Push, and Pull workouts.  
+Workout-Tracker is an Android app built with **Kotlin** for tracking workouts.  
 It allows you to log exercises, sets, repetitions, weights, and monitor your training progress over time.
 
 ---
 
 ## Features
 
-- Track sessions by workout category: **Legs**, **Core**, **Push**, **Pull**
+- Track sessions by workout category
 - Add exercises with sets, reps, and weight
 - Save and review past workouts
 - Clean and simple UI
@@ -19,7 +19,7 @@ It allows you to log exercises, sets, repetitions, weights, and monitor your tra
 A ready-to-run build of the app has been generated and compressed as:
 
 
-This `app-debug.rar` file contains the compiled **APK**.  
+`build.rar`, this file contains the compiled **APK**.  
 You can extract it and install the APK on any Android device with app-sideloading enabled.
 
 ---
